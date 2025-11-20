@@ -1,0 +1,9 @@
+Test:
+
+POST /api/cities
+
+GET /api/cities
+
+POST /api/theatres?cityId=1
+
+GET /api/theatres/by-city/1
