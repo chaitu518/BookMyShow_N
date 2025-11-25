@@ -21,4 +21,8 @@ public class CityController {
     public List<City> addCities(@RequestBody List<City> cities) {
         return cityService.addAllCities(cities);
     }
+    @PostMapping("/city")
+    public City addCity(@RequestBody City city) {
+        return cityService.addCity(city);
+    }
 }

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -13,7 +14,7 @@ import java.time.LocalDate;
 public class Show{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
 
     @ManyToOne
     @JoinColumn(name = "screen_Id", nullable = false)
@@ -23,7 +24,7 @@ public class Show{
     @JoinColumn(name = "movie_Id", nullable = false)
     private Movie movie;
 
-    private LocalDate startTime;
+    private LocalDateTime startTime;
 
     private Double price;
 
