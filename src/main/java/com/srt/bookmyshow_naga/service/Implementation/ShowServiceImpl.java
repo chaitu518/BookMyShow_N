@@ -1,23 +1,26 @@
 package com.srt.bookmyshow_naga.service.Implementation;
 
-import com.srt.bookmyshow_naga.model.Movie;
-import com.srt.bookmyshow_naga.model.Screen;
-import com.srt.bookmyshow_naga.model.Show;
-import com.srt.bookmyshow_naga.repos.MovieRepository;
-import com.srt.bookmyshow_naga.repos.ScreenRepository;
-import com.srt.bookmyshow_naga.repos.ShowRepository;
+import com.srt.bookmyshow_naga.model.*;
+import com.srt.bookmyshow_naga.repos.*;
 import com.srt.bookmyshow_naga.service.ShowService;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ShowServiceImpl implements ShowService {
     private ShowRepository showRepository;
     private ScreenRepository screenRepository;
     private MovieRepository movieRepository;
-    public ShowServiceImpl(ShowRepository showRepository, ScreenRepository screenRepository, MovieRepository movieRepository) {
+    private SeatRepository seatRepository;
+    private ShowSeatRepository showSeatRepository;
+    public ShowServiceImpl(ShowRepository showRepository, ScreenRepository screenRepository, MovieRepository movieRepository, SeatRepository seatRepository, ShowSeatRepository showSeatRepository) {
         this.showRepository = showRepository;
         this.screenRepository = screenRepository;
         this.movieRepository = movieRepository;
+        this.seatRepository = seatRepository;
+        this.showSeatRepository = showSeatRepository;
     }
     @Override
     public Show getShow(int id) {
@@ -30,6 +33,18 @@ public class ShowServiceImpl implements ShowService {
         Screen screen = screenRepository.findById(screenId).orElseThrow(()->new RuntimeException("Not found screen with Id: "+screenId));
         show.setScreen(screen);
         show.setMovie(movie);
-        return showRepository.save(show);
+
+        Show show1 = showRepository.save(show);
+        List<Seat> seats = seatRepository.findByScreenId(screenId);
+        List<ShowSeat> showSeats = new ArrayList<>();
+        for (Seat seat : seats) {
+            ShowSeat showSeat = new ShowSeat();
+            showSeat.setSeat(seat);
+            showSeat.setShow(show1);
+            showSeat.setPrice(show1.getPrice());
+            showSeats.add(showSeat);
+        }
+        showSeatRepository.saveAll(showSeats);
+        return show1;
     }
 }
