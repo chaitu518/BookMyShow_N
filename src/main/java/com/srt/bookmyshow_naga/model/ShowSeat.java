@@ -20,7 +20,9 @@ public class ShowSeat {
     @JoinColumn(name = "seat_id", nullable = false)
     private Seat seat;
 
+    private ShowSeatStatus showSeatStatus=ShowSeatStatus.Available;
+
     private Double price;
 
-    private long lockExpiry;
+    private Long lockExpiry;
 }
