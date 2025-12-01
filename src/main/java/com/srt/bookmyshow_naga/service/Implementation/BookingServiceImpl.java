@@ -1,19 +1,21 @@
 package com.srt.bookmyshow_naga.service.Implementation;
 
-import com.srt.bookmyshow_naga.model.BookingRequest;
-import com.srt.bookmyshow_naga.model.ShowSeat;
-import com.srt.bookmyshow_naga.model.ShowSeatStatus;
+import com.srt.bookmyshow_naga.model.*;
+import com.srt.bookmyshow_naga.repos.BookingRepository;
 import com.srt.bookmyshow_naga.repos.ShowSeatRepository;
 import com.srt.bookmyshow_naga.service.BookingService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 @Service
 public class BookingServiceImpl implements BookingService {
     private ShowSeatRepository showSeatRepository;
-    public BookingServiceImpl(ShowSeatRepository showSeatRepository) {
+    private BookingRepository bookingRepository;
+    public BookingServiceImpl(ShowSeatRepository showSeatRepository, BookingRepository bookingRepository) {
         this.showSeatRepository = showSeatRepository;
+        this.bookingRepository = bookingRepository;
     }
 
     @Transactional
@@ -30,7 +32,7 @@ public class BookingServiceImpl implements BookingService {
                 throw new RuntimeException("Show id mismatch");
             }
             if(showSeat.getShowSeatStatus()!=ShowSeatStatus.Available){
-                throw new RuntimeException("Show seat is already Blocked");
+                throw new RuntimeException("Show seat is not available");
             }
 
         }
@@ -45,7 +47,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public ShowSeatStatus BookShowSeats(BookingRequest bookingRequest) {
+    public Booking BookShowSeats(BookingRequest bookingRequest) {
         long now = System.currentTimeMillis();
         List<ShowSeat> showSeats = showSeatRepository.findAllForUpdate(bookingRequest.getShowSeatIds());
         if(showSeats.size() != bookingRequest.getShowSeatIds().size()) {
@@ -65,7 +67,15 @@ public class BookingServiceImpl implements BookingService {
         for(ShowSeat s: showSeats){
             s.setShowSeatStatus(ShowSeatStatus.Booked);
         }
+        double totalPrice = showSeats.stream().mapToDouble(ss->ss.getPrice()!=null?ss.getPrice():0.0).sum();
         showSeatRepository.saveAll(showSeats);
-        return ShowSeatStatus.Booked;
+        Booking booking = new Booking();
+        booking.setShowSeats(showSeats);
+        booking.setShow(showSeats.get(0).getShow());
+        booking.setBookingTime(LocalDateTime.now());
+        booking.setTotalAmount(totalPrice);
+        booking.setStatus(BookingStatus.CONFIRMED);
+        booking = bookingRepository.save(booking);
+        return booking;
     }
 }

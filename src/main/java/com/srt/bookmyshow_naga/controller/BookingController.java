@@ -1,5 +1,6 @@
 package com.srt.bookmyshow_naga.controller;
 
+import com.srt.bookmyshow_naga.model.Booking;
 import com.srt.bookmyshow_naga.model.BookingRequest;
 import com.srt.bookmyshow_naga.model.ShowSeatStatus;
 import com.srt.bookmyshow_naga.service.BookingService;
@@ -17,7 +18,7 @@ public class BookingController {
         return bookingService.BlockShowSeats(bookingRequest);
     }
     @PostMapping("/confirm")
-    public ShowSeatStatus bookSeats(@RequestBody BookingRequest bookingRequest) {
+    public Booking bookSeats(@RequestBody BookingRequest bookingRequest) {
         return bookingService.BookShowSeats(bookingRequest);
     }
 }

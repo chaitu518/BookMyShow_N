@@ -1,6 +1,7 @@
 package com.srt.bookmyshow_naga.repos;
 
 import com.srt.bookmyshow_naga.model.ShowSeat;
+import com.srt.bookmyshow_naga.model.ShowSeatStatus;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -18,5 +19,8 @@ public interface ShowSeatRepository extends JpaRepository<ShowSeat, Integer> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select ss from ShowSeat ss where ss.id in :ids")
     List<ShowSeat> findAllForUpdate(@Param("ids") List<Integer> showIds);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    List<ShowSeat> findAllByShowSeatStatusAndLockExpiryLessThan(ShowSeatStatus status, long expiry);
 
 }
