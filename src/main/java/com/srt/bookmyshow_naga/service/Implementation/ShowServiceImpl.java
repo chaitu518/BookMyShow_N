@@ -1,6 +1,7 @@
 package com.srt.bookmyshow_naga.service.Implementation;
 
 import com.srt.bookmyshow_naga.model.*;
+import com.srt.bookmyshow_naga.model.dto.Availability;
 import com.srt.bookmyshow_naga.repos.*;
 import com.srt.bookmyshow_naga.service.ShowService;
 import org.springframework.stereotype.Service;
@@ -47,4 +48,33 @@ public class ShowServiceImpl implements ShowService {
         showSeatRepository.saveAll(showSeats);
         return show1;
     }
+
+    @Override
+    public Availability findAvailability(int showId) {
+        showRepository.findById(showId).orElseThrow(()->new RuntimeException("Not found show with Id: "+showId));
+        List<ShowSeat> showSeats = showSeatRepository.findByShowId(showId);
+        Availability availability = new Availability();
+        availability.setShowId(showId);
+        int availableSeats=0;
+        int blockedSeats=0;
+        int bookedSeats=0;
+        for (ShowSeat showSeat : showSeats) {
+            if(showSeat.getShowSeatStatus()==ShowSeatStatus.Available){
+                availableSeats+=1;
+            }
+            if(showSeat.getShowSeatStatus()==ShowSeatStatus.Booked){
+                bookedSeats+=1;
+            }
+            if(showSeat.getShowSeatStatus()==ShowSeatStatus.Blocked){
+                blockedSeats+=1;
+            }
+
+        }
+        availability.setAvailableSeats(availableSeats);
+        availability.setBookedSeats(bookedSeats);
+        availability.setBlockedSeats(blockedSeats);
+        availability.setTotalSeats(availableSeats+bookedSeats+blockedSeats);
+        return availability;
+    }
+
 }

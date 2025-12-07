@@ -1,6 +1,7 @@
 package com.srt.bookmyshow_naga.controller;
 
 import com.srt.bookmyshow_naga.model.Show;
+import com.srt.bookmyshow_naga.model.dto.Availability;
 import com.srt.bookmyshow_naga.service.ShowService;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +19,9 @@ public class ShowController {
     @PostMapping
     public Show addShow(@RequestParam(name = "screenId")int screenId,@RequestParam(name = "movieId")int movieId,@RequestBody Show show) {
         return showService.addShow(show,screenId,movieId);
-
+    }
+    @GetMapping("/{id}/availability")
+    public Availability getShowAvailability(@PathVariable int id) {
+        return showService.findAvailability(id);
     }
 }

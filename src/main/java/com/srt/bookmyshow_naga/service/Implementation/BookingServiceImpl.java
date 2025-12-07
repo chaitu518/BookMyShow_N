@@ -1,8 +1,10 @@
 package com.srt.bookmyshow_naga.service.Implementation;
 
 import com.srt.bookmyshow_naga.model.*;
+import com.srt.bookmyshow_naga.model.dto.BookingRequest;
 import com.srt.bookmyshow_naga.repos.BookingRepository;
 import com.srt.bookmyshow_naga.repos.ShowSeatRepository;
+import com.srt.bookmyshow_naga.repos.UserRepository;
 import com.srt.bookmyshow_naga.service.BookingService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -13,9 +15,11 @@ import java.util.List;
 public class BookingServiceImpl implements BookingService {
     private ShowSeatRepository showSeatRepository;
     private BookingRepository bookingRepository;
-    public BookingServiceImpl(ShowSeatRepository showSeatRepository, BookingRepository bookingRepository) {
+    private UserRepository userRepository;
+    public BookingServiceImpl(ShowSeatRepository showSeatRepository, BookingRepository bookingRepository,UserRepository userRepository) {
         this.showSeatRepository = showSeatRepository;
         this.bookingRepository = bookingRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -24,6 +28,7 @@ public class BookingServiceImpl implements BookingService {
 
         long now = System.currentTimeMillis();
         List<ShowSeat> showSeats = showSeatRepository.findAllForUpdate(bookingRequest.getShowSeatIds());
+        User user = (User) userRepository.findById(bookingRequest.getUserId()).orElseThrow(()->new RuntimeException("user with userId : "+bookingRequest.getUserId()+" not found."));
         if(showSeats.size() != bookingRequest.getShowSeatIds().size()) {
             throw new RuntimeException("No show seats found");
         }
@@ -50,6 +55,7 @@ public class BookingServiceImpl implements BookingService {
     public Booking BookShowSeats(BookingRequest bookingRequest) {
         long now = System.currentTimeMillis();
         List<ShowSeat> showSeats = showSeatRepository.findAllForUpdate(bookingRequest.getShowSeatIds());
+        User user = (User) userRepository.findById(bookingRequest.getUserId()).orElseThrow(()->new RuntimeException("user with userId : "+bookingRequest.getUserId()+" not found."));
         if(showSeats.size() != bookingRequest.getShowSeatIds().size()) {
             throw new RuntimeException("No show seats found");
         }
@@ -75,7 +81,13 @@ public class BookingServiceImpl implements BookingService {
         booking.setBookingTime(LocalDateTime.now());
         booking.setTotalAmount(totalPrice);
         booking.setStatus(BookingStatus.CONFIRMED);
+        booking.setUser(user);
         booking = bookingRepository.save(booking);
         return booking;
+    }
+
+    @Override
+    public Booking findBookingByBookingId(int bookingId) {
+        return bookingRepository.findById(bookingId).orElseThrow(()->new RuntimeException("Booking not found"));
     }
 }

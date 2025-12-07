@@ -1,7 +1,7 @@
 package com.srt.bookmyshow_naga.controller;
 
 import com.srt.bookmyshow_naga.model.Booking;
-import com.srt.bookmyshow_naga.model.BookingRequest;
+import com.srt.bookmyshow_naga.model.dto.BookingRequest;
 import com.srt.bookmyshow_naga.model.ShowSeatStatus;
 import com.srt.bookmyshow_naga.service.BookingService;
 import org.springframework.web.bind.annotation.*;
@@ -20,5 +20,9 @@ public class BookingController {
     @PostMapping("/confirm")
     public Booking bookSeats(@RequestBody BookingRequest bookingRequest) {
         return bookingService.BookShowSeats(bookingRequest);
+    }
+    @GetMapping("/{id}")
+    public Booking getBooking(@PathVariable int id) {
+        return bookingService.findBookingByBookingId(id);
     }
 }
